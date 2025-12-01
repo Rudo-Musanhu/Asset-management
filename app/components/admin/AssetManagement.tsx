@@ -61,7 +61,7 @@ export const AssetManagement: React.FC = () => {
           .from('assets')
           .insert({
             ...assetData,
-            created_by: user?.id || 'system',
+            created_by: user?.id || null,
           });
 
         if (error) throw error;
