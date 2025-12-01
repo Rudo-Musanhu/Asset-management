@@ -7,12 +7,14 @@ import { Input } from '../ui/Input';
 import { Modal } from '../ui/Modal';
 import { Card } from '../ui/Card';
 import { toast } from 'sonner';
+import { useAppContext } from '../../contexts/AppContext';
 
 export const AssetManagement: React.FC = () => {
   const { assets, loading, refetch } = useAssets();
   const { categories } = useCategories();
   const { departments } = useDepartments();
   const { users } = useUsers();
+  const { triggerRefresh } = useAppContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<Asset | null>(null);
   const [formData, setFormData] = useState({
@@ -54,6 +56,7 @@ export const AssetManagement: React.FC = () => {
 
         if (error) throw error;
         toast.success('Asset updated successfully');
+        triggerRefresh();
       } else {
         // Create asset
         const { data: { user } } = await supabase.auth.getUser();
@@ -71,6 +74,7 @@ export const AssetManagement: React.FC = () => {
       setIsModalOpen(false);
       resetForm();
       refetch();
+      triggerRefresh();
     } catch (error: any) {
       toast.error(error.message || 'An error occurred');
     }
@@ -100,6 +104,7 @@ export const AssetManagement: React.FC = () => {
       if (error) throw error;
       toast.success('Asset deleted successfully');
       refetch();
+      triggerRefresh();
     } catch (error: any) {
       toast.error(error.message || 'An error occurred');
     }
