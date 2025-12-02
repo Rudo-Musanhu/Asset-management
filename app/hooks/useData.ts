@@ -6,77 +6,189 @@ import { useAppContext } from '../contexts/AppContext';
 export const useUsers = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase.from('app_users').select('*').order('created_at', { ascending: false });
-    setUsers(data || []);
-    setLoading(false);
+    setError(null);
+    try {
+      const { data, error: err } = await supabase.from('app_users').select('*').order('created_at', { ascending: false });
+      if (err) {
+        console.error('useUsers error:', err);
+        setError(err.message);
+        setUsers([]);
+      } else {
+        setUsers(data || []);
+      }
+    } catch (err) {
+      console.error('useUsers exception:', err);
+      setError(err instanceof Error ? err.message : 'Unknown error');
+      setUsers([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
-  return { users, loading, refetch: fetchUsers };
+  return { users, loading, error, refetch: fetchUsers };
 };
 
 export const useAssets = (userId?: string) => {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { refreshTrigger } = useAppContext();
 
   const fetchAssets = useCallback(async () => {
+    console.log('[useAssets] fetchAssets called, userId:', userId);
     setLoading(true);
-    let query = supabase
-      .from('assets')
-      .select('*, category:asset_categories(*), department:departments(*), creator:app_users(*)')
-      .order('created_at', { ascending: false });
-    if (userId) {
-      query = query.eq('created_by', userId);
+    setError(null);
+    try {
+      console.log('[useAssets] Fetching from supabase...');
+      // First try - just get assets without joins to debug
+      const { data, error: err } = await supabase
+        .from('assets')
+        .select('id, name, category_id, department_id, date_purchased, cost, created_by, created_at')
+        .order('created_at', { ascending: false });
+      
+      console.log('[useAssets] Fetch response - error:', err, 'data length:', data?.length || 0);
+      
+      if (err) {
+        console.error('[useAssets] Query error:', err);
+        setError(err.message);
+        setAssets([]);
+      } else {
+        console.log('[useAssets] Successfully fetched assets:', data?.length || 0, 'assets');
+        if (data && data.length > 0) {
+          console.log('[useAssets] Sample asset:', data[0]);
+          console.log('[useAssets] All assets created_by values:', data.map(a => ({ name: a.name, created_by: (a as any).created_by })));
+        }
+        
+        // Filter by userId if provided, otherwise show all
+        let filtered = (data as any[]) || [];
+        if (userId) {
+          console.log('[useAssets] Filtering for userId:', userId);
+          filtered = filtered.filter(a => a.created_by === userId);
+          console.log('[useAssets] After filtering:', filtered.length, 'assets match userId');
+        }
+        setAssets(filtered as Asset[]);
+      }
+    } catch (err) {
+      console.error('[useAssets] Exception:', err);
+      setError(err instanceof Error ? err.message : 'Unknown error');
+      setAssets([]);
+    } finally {
+      setLoading(false);
     }
-    const { data } = await query;
-    setAssets(data || []);
-    setLoading(false);
   }, [userId]);
 
-  useEffect(() => { fetchAssets(); }, [fetchAssets, refreshTrigger]);
-  return { assets, loading, refetch: fetchAssets };
+  useEffect(() => { 
+    console.log('[useAssets] Initial effect triggered');
+    fetchAssets(); 
+  }, [fetchAssets]);
+  
+  // Refetch when refreshTrigger changes
+  useEffect(() => {
+    console.log('[useAssets] Refresh trigger effect fired:', refreshTrigger);
+    fetchAssets();
+  }, [refreshTrigger, fetchAssets]);
+
+  return { assets, loading, error, refetch: fetchAssets };
 };
 
 export const useActivityLogs = () => {
   const [logs, setLogs] = useState<ActivityLog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { refreshTrigger } = useAppContext();
+
   const fetchLogs = useCallback(async () => {
-    const { data } = await supabase.from('activity_logs').select('*, user:app_users(*)').order('created_at', { ascending: false }).limit(10);
-    setLogs(data || []);
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error: err } = await supabase.from('activity_logs').select('*, user:app_users(*)').order('created_at', { ascending: false }).limit(10);
+      if (err) {
+        console.error('useActivityLogs error:', err);
+        setError(err.message);
+        setLogs([]);
+      } else {
+        setLogs(data || []);
+      }
+    } catch (err) {
+      console.error('useActivityLogs exception:', err);
+      setError(err instanceof Error ? err.message : 'Unknown error');
+      setLogs([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
   useEffect(() => { fetchLogs(); }, [fetchLogs]);
-  return { logs, refetch: fetchLogs };
+  
+  // Refetch when refreshTrigger changes
+  useEffect(() => {
+    fetchLogs();
+  }, [refreshTrigger, fetchLogs]);
+
+  return { logs, loading, error, refetch: fetchLogs };
 };
 
 export const useCategories = () => {
   const [categories, setCategories] = useState<AssetCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchCategories = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase.from('asset_categories').select('*').order('created_at', { ascending: false });
-    setCategories(data || []);
-    setLoading(false);
+    setError(null);
+    try {
+      const { data, error: err } = await supabase.from('asset_categories').select('*').order('created_at', { ascending: false });
+      if (err) {
+        console.error('useCategories error:', err);
+        setError(err.message);
+        setCategories([]);
+      } else {
+        setCategories(data || []);
+      }
+    } catch (err) {
+      console.error('useCategories exception:', err);
+      setError(err instanceof Error ? err.message : 'Unknown error');
+      setCategories([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { fetchCategories(); }, [fetchCategories]);
-  return { categories, loading, refetch: fetchCategories };
+  return { categories, loading, error, refetch: fetchCategories };
 };
 
 export const useDepartments = () => {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchDepartments = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase.from('departments').select('*').order('created_at', { ascending: false });
-    setDepartments(data || []);
-    setLoading(false);
+    setError(null);
+    try {
+      const { data, error: err } = await supabase.from('departments').select('*').order('created_at', { ascending: false });
+      if (err) {
+        console.error('useDepartments error:', err);
+        setError(err.message);
+        setDepartments([]);
+      } else {
+        setDepartments(data || []);
+      }
+    } catch (err) {
+      console.error('useDepartments exception:', err);
+      setError(err instanceof Error ? err.message : 'Unknown error');
+      setDepartments([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { fetchDepartments(); }, [fetchDepartments]);
-  return { departments, loading, refetch: fetchDepartments };
+  return { departments, loading, error, refetch: fetchDepartments };
 };

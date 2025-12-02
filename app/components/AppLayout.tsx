@@ -22,7 +22,7 @@ const AppContent: React.FC = () => {
     );
   }
 
-  if (!isLoggedIn) {
+  if (!isLoggedIn || !user) {
     return <LoginPage onLoginSuccess={() => setIsLoggedIn(true)} />;
   }
 

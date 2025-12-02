@@ -1,21 +1,30 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useAssets, useCategories } from '@/hooks/useData';
 import { Card, StatCard } from '@/components/ui/Card';
 
 export const UserDashboard: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
   const { user } = useAuth();
-  const { assets } = useAssets(user?.id);
-  const { categories } = useCategories();
+  const { assets, loading: assetsLoading } = useAssets(user?.id);
+  const { categories, loading: categoriesLoading } = useCategories();
 
-  const totalValue = assets.reduce((sum, a) => sum + Number(a.cost), 0);
+  // Memoize calculations for better performance
+  const stats = useMemo(() => {
+    const totalValue = assets.reduce((sum, a) => sum + Number(a.cost || 0), 0);
+    
+    const catStats = categories
+      .map((c) => ({
+        name: c.name,
+        count: assets.filter((a) => a.category_id === c.id).length,
+      }))
+      .filter((c) => c.count > 0);
+
+    return { totalValue, catStats };
+  }, [assets, categories]);
+
   const formatCurrency = (n: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n);
 
-  const catStats = categories.map((c) => ({
-    name: c.name,
-    count: assets.filter((a) => a.category_id === c.id).length,
-  })).filter((c) => c.count > 0);
-
+  const { totalValue, catStats } = stats;
   const recentAssets = assets.slice(0, 5);
 
   return (
@@ -49,7 +58,7 @@ export const UserDashboard: React.FC<{ refreshKey?: number }> = ({ refreshKey })
                       <p className="text-xs text-slate-500">{asset.category?.name || 'Uncategorized'}</p>
                     </div>
                   </div>
-                  <span className="font-semibold text-green-600">{formatCurrency(asset.cost)}</span>
+                  <span className="font-semibold text-green-600">{formatCurrency(Number(asset.cost))}</span>
                 </div>
               ))}
             </div>

@@ -1,16 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { useAssets, useCategories } from '@/hooks/useData';
+import { useAssets, useCategories, useDepartments } from '@/hooks/useData';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input, Select } from '@/components/ui/Input';
 
 export const MyAssets: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
   const { user } = useAuth();
-  const { assets, loading } = useAssets(user?.id);
+  const { assets, loading, error } = useAssets(user?.id);
+  const { assets: allAssets, loading: allLoading } = useAssets(); // Fetch ALL assets for comparison
   const { categories } = useCategories();
+  const { departments } = useDepartments();
   const [search, setSearch] = useState('');
   const [filterCat, setFilterCat] = useState('');
+
+  // Create lookup maps for categories and departments
+  const categoryMap = new Map(categories.map(c => [c.id, c]));
+  const departmentMap = new Map(departments.map(d => [d.id, d]));
+
+  useEffect(() => {
+    console.log('MyAssets mounted/updated');
+    console.log('MyAssets - user object:', user);
+    console.log('MyAssets - user?.id type:', typeof user?.id, 'value:', user?.id);
+    console.log('MyAssets - assets received (filtered):', assets);
+    console.log('MyAssets - assets count (filtered):', assets.length);
+    console.log('MyAssets - ALL assets count (unfiltered):', allAssets.length);
+    console.log('MyAssets - error:', error);
+    if (assets.length > 0) {
+      console.log('MyAssets - sample asset:', assets[0]);
+      console.log('MyAssets - sample asset created_by:', (assets[0] as any).created_by);
+    }
+    if (allAssets.length > 0) {
+      console.log('MyAssets - all assets sample:', allAssets[0]);
+      console.log('MyAssets - all assets created_by values:', allAssets.map(a => ({ name: a.name, created_by: (a as any).created_by })));
+    }
+  }, [user?.id, assets, allAssets, error]);
 
   const filtered = assets.filter((a) => {
     if (search && !a.name.toLowerCase().includes(search.toLowerCase())) return false;
@@ -23,7 +47,7 @@ export const MyAssets: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
 
   const exportCSV = () => {
     const headers = ['Name', 'Category', 'Department', 'Cost', 'Date Purchased'];
-    const rows = filtered.map((a) => [a.name, a.category?.name || '', a.department?.name || '', a.cost, a.date_purchased]);
+    const rows = filtered.map((a) => [a.name, a.category_id ? categoryMap.get(a.category_id)?.name || '' : '', a.department_id ? departmentMap.get(a.department_id)?.name || '' : '', a.cost, a.date_purchased]);
     const csv = [headers, ...rows].map((r) => r.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -56,7 +80,20 @@ export const MyAssets: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
 
       {loading ? (
         <div className="text-center py-12 text-slate-500">Loading...</div>
-      ) : filtered.length === 0 ? (
+      ) : (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg text-xs font-mono">
+          <p className="text-blue-900">DEBUG: User ID = {user?.id}</p>
+          <p className="text-blue-900">DEBUG: Filtered assets = {assets.length}, All assets = {allAssets.length}</p>
+          {assets.length === 0 && allAssets.length > 0 && (
+            <p className="text-red-900">⚠️ Assets exist in DB but none match user ID. Check created_by field.</p>
+          )}
+          {assets.length === 0 && allAssets.length === 0 && (
+            <p className="text-orange-900">⚠️ No assets in database at all.</p>
+          )}
+        </div>
+      )}
+
+      {filtered.length === 0 ? (
         <Card className="p-12 text-center">
           <svg className="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -78,8 +115,8 @@ export const MyAssets: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
               </div>
               <h3 className="font-semibold text-slate-900 mb-2">{asset.name}</h3>
               <div className="flex flex-wrap gap-2 mb-3">
-                {asset.category && <span className="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-700">{asset.category.name}</span>}
-                {asset.department && <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700">{asset.department.name}</span>}
+                {asset.category_id && categoryMap.get(asset.category_id) && <span className="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-700">{categoryMap.get(asset.category_id)?.name}</span>}
+                {asset.department_id && departmentMap.get(asset.department_id) && <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700">{departmentMap.get(asset.department_id)?.name}</span>}
               </div>
               <p className="text-sm text-slate-500">Purchased: {new Date(asset.date_purchased).toLocaleDateString()}</p>
             </Card>

@@ -28,6 +28,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       if (error || !data) return false;
 
+      console.log('AuthContext login - data from DB:', data);
+
       const userData: User = {
         id: data.id,
         email: data.email,
@@ -36,6 +38,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         is_active: data.is_active,
         created_at: data.created_at,
       };
+
+      console.log('AuthContext login - userData created:', userData);
 
       setUser(userData);
       localStorage.setItem('asset_manager_user', JSON.stringify(userData));

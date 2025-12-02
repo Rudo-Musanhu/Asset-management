@@ -6,11 +6,18 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Modal } from '../ui/Modal';
 import { Card } from '../ui/Card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Label } from '../ui/label';
 import { toast } from 'sonner';
 import { useAppContext } from '../../contexts/AppContext';
+import { useAuth } from '../../context/AuthContext';
+import { useCategories, useDepartments } from '../../hooks/useData';
 
 export const AssetManagement: React.FC = () => {
   const { triggerRefresh } = useAppContext();
+  const { user } = useAuth();
+  const { categories } = useCategories();
+  const { departments } = useDepartments();
   const [assets, setAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalAssets, setTotalAssets] = useState<number>(0);
@@ -28,15 +35,15 @@ export const AssetManagement: React.FC = () => {
   // Fetch all assets + total count for Admin
   const fetchAssets = async () => {
     setLoading(true);
-    const { data, error, count } = await supabase
+    const { data, error } = await supabase
       .from('assets')
-      .select('*', { count: 'exact' });
+      .select('*');
 
     if (error) {
       toast.error(error.message);
     } else {
       setAssets(data || []);
-      setTotalAssets(count || 0);
+      setTotalAssets(data?.length || 0);
     }
     setLoading(false);
   };
@@ -76,7 +83,6 @@ export const AssetManagement: React.FC = () => {
         if (error) throw error;
         toast.success('Asset updated successfully');
       } else {
-        const { data: { user } } = await supabase.auth.getUser();
         const { error } = await supabase
           .from('assets')
           .insert({
@@ -188,17 +194,39 @@ export const AssetManagement: React.FC = () => {
             required
           />
 
-          <Input
-            label="Category ID"
-            value={formData.category_id}
-            onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-          />
+          <div className="space-y-2">
+            <Label htmlFor="category">Category</Label>
+            <Select value={formData.category_id} onValueChange={(value) => setFormData({ ...formData, category_id: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">None</SelectItem>
+                {categories.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-          <Input
-            label="Department ID"
-            value={formData.department_id}
-            onChange={(e) => setFormData({ ...formData, department_id: e.target.value })}
-          />
+          <div className="space-y-2">
+            <Label htmlFor="department">Department</Label>
+            <Select value={formData.department_id} onValueChange={(value) => setFormData({ ...formData, department_id: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a department" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">None</SelectItem>
+                {departments.map((department) => (
+                  <SelectItem key={department.id} value={department.id}>
+                    {department.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           <Input
             label="Purchase Date"

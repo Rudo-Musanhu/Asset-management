@@ -1,22 +1,28 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useUsers, useAssets, useCategories, useDepartments, useActivityLogs } from '../../hooks/useData';
 import { Card } from '../ui/Card';
 
 export const AdminDashboard: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
-  const { users } = useUsers();
-  const { assets } = useAssets();
-  const { categories } = useCategories();
-  const { departments } = useDepartments();
+  const { users, loading: usersLoading } = useUsers();
+  const { assets, loading: assetsLoading } = useAssets();
+  const { categories, loading: categoriesLoading } = useCategories();
+  const { departments, loading: departmentsLoading } = useDepartments();
   const { logs } = useActivityLogs();
 
-  console.log('AdminDashboard - Assets:', assets);
-  console.log('AdminDashboard - Total assets:', assets.length);
+  // Memoize calculations to prevent unnecessary recalculations
+  const stats = useMemo(() => {
+    return {
+      totalUsers: users.length,
+      totalAssets: assets.length,
+      totalCategories: categories.length,
+      totalDepartments: departments.length,
+      totalAssetValue: assets.reduce((sum, asset) => sum + (Number(asset.cost) || 0), 0),
+      usedCategories: new Set(assets.map(a => a.category_id).filter(Boolean)).size,
+      usedDepartments: new Set(assets.map(a => a.department_id).filter(Boolean)).size,
+    };
+  }, [users, assets, categories, departments]);
 
-  const totalUsers = users.length;
-  const totalAssets = assets.length;
-  const totalCategories = categories.length;
-  const totalDepartments = departments.length;
-  const totalAssetValue = assets.reduce((sum, asset) => sum + asset.cost, 0);
+  const { totalUsers, totalAssets, totalCategories, totalDepartments, totalAssetValue } = stats;
 
   return (
     <div className="space-y-6">
