@@ -49,17 +49,9 @@ CREATE TABLE IF NOT EXISTS activity_logs (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Enable Row Level Security (optional, but recommended for Supabase)
-ALTER TABLE app_users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE asset_categories ENABLE ROW LEVEL SECURITY;
-ALTER TABLE departments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE assets ENABLE ROW LEVEL SECURITY;
-ALTER TABLE activity_logs ENABLE ROW LEVEL SECURITY;
-
--- Create policies (adjust as needed for your security requirements)
--- For demo purposes, allow all operations for authenticated users
-CREATE POLICY "Allow all operations for authenticated users on app_users" ON app_users FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "Allow all operations for authenticated users on asset_categories" ON asset_categories FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "Allow all operations for authenticated users on departments" ON departments FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "Allow all operations for authenticated users on assets" ON assets FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "Allow all operations for authenticated users on activity_logs" ON activity_logs FOR ALL USING (auth.role() = 'authenticated');
+-- Disable Row Level Security for demo purposes
+ALTER TABLE app_users DISABLE ROW LEVEL SECURITY;
+ALTER TABLE asset_categories DISABLE ROW LEVEL SECURITY;
+ALTER TABLE departments DISABLE ROW LEVEL SECURITY;
+ALTER TABLE assets DISABLE ROW LEVEL SECURITY;
+ALTER TABLE activity_logs DISABLE ROW LEVEL SECURITY;
