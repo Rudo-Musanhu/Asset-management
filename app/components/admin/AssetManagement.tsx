@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { useAssets, useCategories, useDepartments, useUsers } from '../../hooks/useData';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Asset } from '../../types';
 import { Button } from '../ui/Button';
@@ -8,22 +7,57 @@ import { Modal } from '../ui/Modal';
 import { Card } from '../ui/Card';
 import { toast } from 'sonner';
 import { useAppContext } from '../../contexts/AppContext';
+import { useCategories, useDepartments } from '../../hooks/useData';
 
 export const AssetManagement: React.FC = () => {
-  const { assets, loading, refetch } = useAssets();
-  const { categories } = useCategories();
-  const { departments } = useDepartments();
-  const { users } = useUsers();
-  const { triggerRefresh } = useAppContext();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingAsset, setEditingAsset] = useState<Asset | null>(null);
-  const [formData, setFormData] = useState({
-    name: '',
-    category_id: '',
-    department_id: '',
-    date_purchased: '',
-    cost: '',
-  });
+   const { triggerRefresh } = useAppContext();
+   const { categories } = useCategories();
+   const { departments } = useDepartments();
+   const [assets, setAssets] = useState<Asset[]>([]);
+   const [loading, setLoading] = useState(true);
+   const [totalAssets, setTotalAssets] = useState<number>(0);
+
+   const [isModalOpen, setIsModalOpen] = useState(false);
+   const [editingAsset, setEditingAsset] = useState<Asset | null>(null);
+   const [formData, setFormData] = useState({
+     name: '',
+     category_id: '',
+     department_id: '',
+     date_purchased: '',
+     cost: '',
+   });
+
+  // Fetch all assets + total count for Admin
+  const fetchAssets = async () => {
+    setLoading(true);
+    const { data, error, count } = await supabase
+      .from('assets')
+      .select('*, category:asset_categories(*), department:departments(*), creator:app_users(full_name)', { count: 'exact' });
+
+    if (error) {
+      toast.error(error.message);
+    } else {
+      setAssets(data || []);
+      setTotalAssets(count || 0);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchAssets();
+  }, []);
+
+  useEffect(() => {
+    if (editingAsset) {
+      setFormData({
+        name: editingAsset.name,
+        category_id: editingAsset.category_id || '',
+        department_id: editingAsset.department_id || '',
+        date_purchased: editingAsset.date_purchased.split('T')[0], // format for date input
+        cost: editingAsset.cost.toString(),
+      });
+    }
+  }, [editingAsset]);
 
   const resetForm = () => {
     setFormData({
@@ -48,7 +82,6 @@ export const AssetManagement: React.FC = () => {
       };
 
       if (editingAsset) {
-        // Update asset
         const { error } = await supabase
           .from('assets')
           .update(assetData)
@@ -56,9 +89,7 @@ export const AssetManagement: React.FC = () => {
 
         if (error) throw error;
         toast.success('Asset updated successfully');
-        triggerRefresh();
       } else {
-        // Create asset
         const { data: { user } } = await supabase.auth.getUser();
         const { error } = await supabase
           .from('assets')
@@ -73,23 +104,11 @@ export const AssetManagement: React.FC = () => {
 
       setIsModalOpen(false);
       resetForm();
-      refetch();
+      fetchAssets(); // refresh list + count
       triggerRefresh();
-    } catch (error: any) {
-      toast.error(error.message || 'An error occurred');
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'An error occurred');
     }
-  };
-
-  const handleEdit = (asset: Asset) => {
-    setEditingAsset(asset);
-    setFormData({
-      name: asset.name,
-      category_id: asset.category_id || '',
-      department_id: asset.department_id || '',
-      date_purchased: asset.date_purchased.split('T')[0], // Format for date input
-      cost: asset.cost.toString(),
-    });
-    setIsModalOpen(true);
   };
 
   const handleDelete = async (assetId: string) => {
@@ -103,10 +122,10 @@ export const AssetManagement: React.FC = () => {
 
       if (error) throw error;
       toast.success('Asset deleted successfully');
-      refetch();
+      fetchAssets();
       triggerRefresh();
-    } catch (error: any) {
-      toast.error(error.message || 'An error occurred');
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'An error occurred');
     }
   };
 
@@ -116,6 +135,7 @@ export const AssetManagement: React.FC = () => {
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Asset Management</h1>
           <p className="text-slate-600 mt-2">Manage all assets in the system</p>
+          <p className="text-slate-700 mt-1">Total Assets: {totalAssets}</p>
         </div>
         <Button onClick={() => { resetForm(); setIsModalOpen(true); }}>
           Add New Asset
@@ -130,13 +150,13 @@ export const AssetManagement: React.FC = () => {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-slate-200">
-                  <th className="text-left py-3 px-4 font-medium text-slate-700">Name</th>
-                  <th className="text-left py-3 px-4 font-medium text-slate-700">Category</th>
-                  <th className="text-left py-3 px-4 font-medium text-slate-700">Department</th>
-                  <th className="text-left py-3 px-4 font-medium text-slate-700">Purchase Date</th>
-                  <th className="text-left py-3 px-4 font-medium text-slate-700">Cost</th>
-                  <th className="text-left py-3 px-4 font-medium text-slate-700">Created By</th>
-                  <th className="text-right py-3 px-4 font-medium text-slate-700">Actions</th>
+                  <th className="text-left py-3 px-4">Name</th>
+                  <th className="text-left py-3 px-4">Category</th>
+                  <th className="text-left py-3 px-4">Department</th>
+                  <th className="text-left py-3 px-4">Purchase Date</th>
+                  <th className="text-left py-3 px-4">Cost</th>
+                  <th className="text-left py-3 px-4">Created By</th>
+                  <th className="text-right py-3 px-4">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -149,7 +169,7 @@ export const AssetManagement: React.FC = () => {
                     <td className="py-3 px-4">${asset.cost.toLocaleString()}</td>
                     <td className="py-3 px-4">{asset.creator?.full_name || 'System'}</td>
                     <td className="py-3 px-4 text-right space-x-2">
-                      <Button size="sm" variant="outline" onClick={() => handleEdit(asset)}>
+                      <Button size="sm" variant="outline" onClick={() => { setEditingAsset(asset); setIsModalOpen(true); }}>
                         Edit
                       </Button>
                       <Button size="sm" variant="destructive" onClick={() => handleDelete(asset.id)}>
@@ -181,7 +201,6 @@ export const AssetManagement: React.FC = () => {
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             required
           />
-
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">Category</label>
             <select
@@ -189,7 +208,7 @@ export const AssetManagement: React.FC = () => {
               onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
               className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">Select Category (Optional)</option>
+              <option value="">Select Category</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
@@ -197,7 +216,6 @@ export const AssetManagement: React.FC = () => {
               ))}
             </select>
           </div>
-
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">Department</label>
             <select
@@ -205,7 +223,7 @@ export const AssetManagement: React.FC = () => {
               onChange={(e) => setFormData({ ...formData, department_id: e.target.value })}
               className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">Select Department (Optional)</option>
+              <option value="">Select Department</option>
               {departments.map((department) => (
                 <option key={department.id} value={department.id}>
                   {department.name}
@@ -213,7 +231,6 @@ export const AssetManagement: React.FC = () => {
               ))}
             </select>
           </div>
-
           <Input
             label="Purchase Date"
             type="date"
@@ -221,17 +238,14 @@ export const AssetManagement: React.FC = () => {
             onChange={(e) => setFormData({ ...formData, date_purchased: e.target.value })}
             required
           />
-
           <Input
-            label="Cost ($)"
+            label="Cost"
             type="number"
             step="0.01"
-            min="0"
             value={formData.cost}
             onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
             required
           />
-
           <div className="flex justify-end space-x-3 pt-4">
             <Button type="button" variant="outline" onClick={() => { setIsModalOpen(false); resetForm(); }}>
               Cancel
