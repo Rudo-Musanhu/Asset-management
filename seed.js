@@ -1,8 +1,8 @@
 // Seed script to add sample data
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl =' https://ntjrwuytloxrequjrceu.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im50anJ3dXl0bG94cmVxdWpyY2V1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0MTI0NzUsImV4cCI6MjA3OTk4ODQ3NX0.7tlGkIYW6I3siDrbHxBzYwB06HnoYiqKPYASRHPzlKM';
+const supabaseUrl = 'https://uhwasesfjdjdtvpensba.databasepad.com';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjRjMDAwOTAxLWNjMTUtNDFlMC1hNmYwLWM1NTA1MWNjMzhmNCJ9.eyJwcm9qZWN0SWQiOiJ1aHdhc2VzZmpkamR0dnBlbnNiYSIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzY0NTMwMjA5LCJleHAiOjIwNzk4OTAyMDksImlzcyI6ImZhbW91cy5kYXRhYmFzZXBhZCIsImF1ZCI6ImZhbW91cy5jbGllbnRzIn0.2ioBuiODahy8MKmSWfrQe8FkV4RmD1JjGZPEQO51Y1A';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function seedData() {
@@ -11,8 +11,6 @@ async function seedData() {
     const { data: existingCats } = await supabase.from('asset_categories').select('id, name');
     const { data: existingDepts } = await supabase.from('departments').select('id, name');
     const { data: existingUsers } = await supabase.from('app_users').select('id').limit(1);
-
-    const adminUserId = existingUsers?.[0]?.id || null;
 
     // Create sample categories if they don't exist
     const categories = [
@@ -47,6 +45,25 @@ async function seedData() {
     // Get all categories and departments
     const { data: cats } = await supabase.from('asset_categories').select('id, name');
     const { data: depts } = await supabase.from('departments').select('id, name');
+
+    // Create sample users if they don't exist
+    const users = [
+      { email: 'admin@eport.cloud', password: 'admin123', full_name: 'Admin User', role: 'admin', is_active: true },
+      { email: 'user@eport.cloud', password: 'user123', full_name: 'Regular User', role: 'user', is_active: true },
+    ];
+
+    for (const user of users) {
+      const { data: existingUser } = await supabase.from('app_users').select('id').eq('email', user.email).single();
+      if (!existingUser) {
+        const { error } = await supabase.from('app_users').insert(user);
+        if (error) console.error('Error inserting user:', error);
+        else console.log(`Added user: ${user.email}`);
+      }
+    }
+
+    // Get admin user for assets
+    const { data: adminUser } = await supabase.from('app_users').select('id').eq('email', 'admin@eport.cloud').single();
+    let adminUserId = adminUser?.id || null;
 
     // Create sample assets
     const assets = [
