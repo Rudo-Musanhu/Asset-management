@@ -37,6 +37,18 @@ export const CreateAsset: React.FC<CreateAssetProps> = ({ onSuccess, onNavigateT
     setSuccess(false);
     setError(null);
 
+    // Validate date - no future dates allowed
+    if (form.date_purchased) {
+      const purchaseDate = new Date(form.date_purchased);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (purchaseDate > today) {
+        setError('Purchase date cannot be in the future. Please select today or an earlier date.');
+        setSaving(false);
+        return;
+      }
+    }
+
     console.log('CreateAsset - user object:', user);
     console.log('CreateAsset - user?.id type:', typeof user?.id, 'value:', user?.id);
     console.log('CreateAsset - Asset data:', { name: form.name, category_id: form.category_id, department_id: form.department_id, date_purchased: form.date_purchased, cost: form.cost, created_by: user?.id });
@@ -140,8 +152,10 @@ export const CreateAsset: React.FC<CreateAssetProps> = ({ onSuccess, onNavigateT
               type="date"
               value={form.date_purchased}
               onChange={(e) => setForm({ ...form, date_purchased: e.target.value })}
+              max={new Date().toISOString().split('T')[0]}
               required
             />
+            <p className="text-xs text-slate-500">Only today or past dates are allowed</p>
             <Input
               label="Cost (USD)"
               type="number"

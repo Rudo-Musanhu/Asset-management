@@ -83,6 +83,16 @@ export const AssetManagement: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Validate date - no future dates allowed
+      if (formData.date_purchased) {
+        const purchaseDate = new Date(formData.date_purchased);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (purchaseDate > today) {
+          toast.error('Purchase date cannot be in the future. Please select today or an earlier date.');
+          return;
+        }
+      }
       const assetData = {
         name: formData.name,
         category_id: formData.category_id || null,
@@ -262,9 +272,11 @@ export const AssetManagement: React.FC = () => {
               type="date"
               value={formData.date_purchased}
               onChange={(e) => setFormData({ ...formData, date_purchased: e.target.value })}
+              max={new Date().toISOString().split('T')[0]}
               className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
+            <p className="text-xs text-slate-500 mt-1">Only today or past dates are allowed</p>
           </div>
 
           <div>
