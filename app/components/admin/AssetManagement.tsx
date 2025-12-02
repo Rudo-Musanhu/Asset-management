@@ -34,14 +34,18 @@ export const AssetManagement: React.FC = () => {
 
   // Fetch all assets + total count for Admin
   const fetchAssets = async () => {
+    console.log('[AssetManagement] Fetching assets...');
     setLoading(true);
     const { data, error } = await supabase
       .from('assets')
-      .select('*');
+      .select('id, name, category_id, department_id, date_purchased, cost, created_by, created_at');
 
+    console.log('[AssetManagement] Fetch response - error:', error, 'data length:', data?.length || 0);
     if (error) {
+      console.error('[AssetManagement] Error fetching:', error);
       toast.error(error.message);
     } else {
+      console.log('[AssetManagement] Assets loaded:', data);
       setAssets(data || []);
       setTotalAssets(data?.length || 0);
     }
@@ -51,6 +55,19 @@ export const AssetManagement: React.FC = () => {
   useEffect(() => {
     fetchAssets();
   }, []);
+
+  useEffect(() => {
+    if (editingAsset) {
+      setFormData({
+        name: editingAsset.name,
+        category_id: editingAsset.category_id || '',
+        department_id: editingAsset.department_id || '',
+        date_purchased: editingAsset.date_purchased,
+        cost: editingAsset.cost.toString(),
+      });
+      setIsModalOpen(true);
+    }
+  }, [editingAsset]);
 
   const resetForm = () => {
     setFormData({
@@ -129,7 +146,12 @@ export const AssetManagement: React.FC = () => {
           <p className="text-slate-600 mt-2">Manage all assets in the system</p>
           <p className="text-slate-700 mt-1">Total Assets: {totalAssets}</p>
         </div>
-        <Button onClick={() => { resetForm(); setIsModalOpen(true); }}>
+        <Button onClick={() => { 
+          console.log('[AssetManagement] Add New Asset button clicked');
+          resetForm(); 
+          setIsModalOpen(true);
+          console.log('[AssetManagement] Modal should be open now');
+        }}>
           Add New Asset
         </Button>
       </div>
@@ -183,68 +205,80 @@ export const AssetManagement: React.FC = () => {
 
       <Modal
         isOpen={isModalOpen}
-        onClose={() => { setIsModalOpen(false); resetForm(); }}
+        onClose={() => { 
+          console.log('[AssetManagement] Modal closed');
+          setIsModalOpen(false); 
+          resetForm(); 
+        }}
         title={editingAsset ? 'Edit Asset' : 'Add New Asset'}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Asset Name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            required
-          />
-
-          <div className="space-y-2">
-            <Label htmlFor="category">Category</Label>
-            <Select value={formData.category_id} onValueChange={(value) => setFormData({ ...formData, category_id: value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">None</SelectItem>
-                {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Asset Name</label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="department">Department</Label>
-            <Select value={formData.department_id} onValueChange={(value) => setFormData({ ...formData, department_id: value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a department" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">None</SelectItem>
-                {departments.map((department) => (
-                  <SelectItem key={department.id} value={department.id}>
-                    {department.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
+            <select
+              value={formData.category_id}
+              onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
+              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">None</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
           </div>
 
-          <Input
-            label="Purchase Date"
-            type="date"
-            value={formData.date_purchased}
-            onChange={(e) => setFormData({ ...formData, date_purchased: e.target.value })}
-            required
-          />
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Department</label>
+            <select
+              value={formData.department_id}
+              onChange={(e) => setFormData({ ...formData, department_id: e.target.value })}
+              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">None</option>
+              {departments.map((department) => (
+                <option key={department.id} value={department.id}>
+                  {department.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-          <Input
-            label="Cost ($)"
-            type="number"
-            step="0.01"
-            min="0"
-            value={formData.cost}
-            onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
-            required
-          />
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Purchase Date</label>
+            <input
+              type="date"
+              value={formData.date_purchased}
+              onChange={(e) => setFormData({ ...formData, date_purchased: e.target.value })}
+              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Cost ($)</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              value={formData.cost}
+              onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
+              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
 
           <div className="flex justify-end space-x-3 pt-4">
             <Button type="button" variant="outline" onClick={() => { setIsModalOpen(false); resetForm(); }}>
