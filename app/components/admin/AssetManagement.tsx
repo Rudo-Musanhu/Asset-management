@@ -109,10 +109,8 @@ export const AssetManagement: React.FC = () => {
     try {
       // Validate date - no future dates allowed
       if (formData.date_purchased) {
-        const purchaseDate = new Date(formData.date_purchased);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        if (purchaseDate > today) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        if (formData.date_purchased > todayStr) {
           toast.error('Purchase date cannot be in the future. Please select today or an earlier date.');
           return;
         }

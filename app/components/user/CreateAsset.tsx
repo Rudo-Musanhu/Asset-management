@@ -41,10 +41,8 @@ export const CreateAsset: React.FC<CreateAssetProps> = ({ onSuccess, onNavigateT
 
     // Validate date - no future dates allowed
     if (form.date_purchased) {
-      const purchaseDate = new Date(form.date_purchased);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      if (purchaseDate > today) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      if (form.date_purchased > todayStr) {
         setError('Purchase date cannot be in the future. Please select today or an earlier date.');
         setSaving(false);
         return;
