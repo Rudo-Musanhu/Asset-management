@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useAssets, useCategories } from '@/hooks/useData';
 import { Card, StatCard } from '@/components/ui/Card';
+import * as LucideIcons from 'lucide-react';
 
 export const UserDashboard: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
   const { user } = useAuth();
@@ -51,11 +52,13 @@ export const UserDashboard: React.FC<{ refreshKey?: number }> = ({ refreshKey })
                 <div key={asset.id} className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-navy-100 rounded-lg flex items-center justify-center">
-                      <svg className="w-4 h-4 text-navy-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                      {React.createElement((LucideIcons as any)[asset.icon_name] || LucideIcons.Package, {
+                        className: 'w-4 h-4 text-navy-600'
+                      })}
                     </div>
                     <div>
                       <p className="font-medium text-slate-900 text-sm">{asset.name}</p>
-                      <p className="text-xs text-slate-500">{asset.category?.name || 'Uncategorized'}</p>
+                      <p className="text-xs text-slate-500">{asset.category_id ? 'Categorized' : 'Uncategorized'}</p>
                     </div>
                   </div>
                   <span className="font-semibold text-green-600">{formatCurrency(Number(asset.cost))}</span>

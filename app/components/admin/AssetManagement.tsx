@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { useAppContext } from '../../contexts/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import { useCategories, useDepartments, useUsers } from '../../hooks/useData';
+import * as LucideIcons from 'lucide-react';
 
 export const AssetManagement: React.FC = () => {
   const { triggerRefresh } = useAppContext();
@@ -44,8 +45,7 @@ export const AssetManagement: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<Asset | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [iconName, setIconName] = useState<string>('Package');
   const [formData, setFormData] = useState({
     name: '',
     category_id: '',
@@ -60,7 +60,7 @@ export const AssetManagement: React.FC = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from('assets')
-      .select('id, name, category_id, department_id, date_purchased, cost, created_by, created_at');
+      .select('id, name, category_id, department_id, date_purchased, cost, created_by, icon_name, created_at');
 
     if (error) {
       console.error('[AssetManagement] Error fetching:', error);
@@ -86,7 +86,7 @@ export const AssetManagement: React.FC = () => {
         date_purchased: editingAsset.date_purchased,
         cost: editingAsset.cost.toString(),
       });
-      setImagePreview(editingAsset.image_url || null);
+      setIconName(editingAsset.icon_name || 'Package');
       setIsModalOpen(true);
     }
   }, [editingAsset]);
@@ -96,12 +96,12 @@ export const AssetManagement: React.FC = () => {
       name: '',
       category_id: '',
       department_id: '',
+      created_by: '',
       date_purchased: '',
       cost: '',
     });
     setEditingAsset(null);
-    setImageFile(null);
-    setImagePreview(null);
+    setIconName('Package');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -123,18 +123,8 @@ export const AssetManagement: React.FC = () => {
         department_id: formData.department_id || null,
         date_purchased: formData.date_purchased,
         cost: parseFloat(formData.cost),
+        icon_name: iconName,
       };
-
-      // If an image file was selected, upload to Supabase Storage and set image_url
-      if (imageFile) {
-        const fileExt = imageFile.name.split('.').pop();
-        const fileName = `${Date.now()}_${Math.random().toString(36).slice(2)}.${fileExt}`;
-        const filePath = `assets/${fileName}`;
-          const { error: uploadError } = await supabase.storage.from('assets').upload(filePath, imageFile);
-          if (uploadError) throw uploadError;
-          const { data: publicData } = await supabase.storage.from('assets').getPublicUrl(filePath);
-          assetData.image_url = publicData?.publicUrl || '';
-      }
 
       if (editingAsset) {
         const { error } = await supabase
@@ -343,20 +333,33 @@ export const AssetManagement: React.FC = () => {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Image</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files?.[0] || null;
-                setImageFile(file);
-                setImagePreview(file ? URL.createObjectURL(file) : null);
-              }}
-              className="w-full"
-            />
-            {imagePreview && (
-              <img src={imagePreview} alt="Preview" className="mt-2 max-h-40 rounded-md" />
-            )}
+            <label className="block text-sm font-medium text-slate-700 mb-1">Asset Icon</label>
+            <select
+              value={iconName}
+              onChange={(e) => setIconName(e.target.value)}
+              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="Package">📦 Package</option>
+              <option value="Laptop">💻 Laptop</option>
+              <option value="Monitor">🖥️ Monitor</option>
+              <option value="Smartphone">📱 Smartphone</option>
+              <option value="Camera">📷 Camera</option>
+              <option value="Printer">🖨️ Printer</option>
+              <option value="Headphones">🎧 Headphones</option>
+              <option value="Mouse">🖱️ Mouse</option>
+              <option value="Keyboard">⌨️ Keyboard</option>
+              <option value="HardDrive">💾 Hard Drive</option>
+              <option value="Zap">⚡ Power/Zap</option>
+              <option value="Wrench">🔧 Wrench</option>
+              <option value="Tool">🛠️ Tool</option>
+              <option value="AlertCircle">⚠️ Alert/Other</option>
+            </select>
+            <div className="mt-2 flex items-center gap-2">
+              <span className="text-sm text-slate-600">Preview:</span>
+              {React.createElement((LucideIcons as any)[iconName] || LucideIcons.Package, {
+                className: 'w-6 h-6 text-slate-700'
+              })}
+            </div>
           </div>
 
           <div className="flex justify-end space-x-3 pt-4">

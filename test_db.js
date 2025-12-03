@@ -1,8 +1,8 @@
 // Quick database test script
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = 'https://uhwasesfjdjdtvpensba.databasepad.com';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjRjMDAwOTAxLWNjMTUtNDFlMC1hNmYwLWM1NTA1MWNjMzhmNCJ9.eyJwcm9qZWN0SWQiOiJ1aHdhc2VzZmpkamR0dnBlbnNiYSIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzY0NTMwMjA5LCJleHAiOjIwNzk4OTAyMDksImlzcyI6ImZhbW91cy5kYXRhYmFzZXBhZCIsImF1ZCI6ImZhbW91cy5jbGllbnRzIn0.2ioBuiODahy8MKmSWfrQe8FkV4RmD1JjGZPEQO51Y1A';
+const supabaseUrl = 'https://ntjrwuytloxrequjrceu.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im50anJ3dXl0bG94cmVxdWpyY2V1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0MTI0NzUsImV4cCI6MjA3OTk4ODQ3NX0.7tlGkIYW6I3siDrbHxBzYwB06HnoYiqKPYASRHPzlKM';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function test() {

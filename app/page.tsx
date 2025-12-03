@@ -3,17 +3,17 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from './contexts/AuthContext'
+import { useAuth } from './context/AuthContext'
 
 export default function Home() {
   const router = useRouter()
-  const { user, profile, loading } = useAuth()
+  const { user, isLoading: loading } = useAuth()
 
   useEffect(() => {
     if (!loading) {
-      if (user && profile) {
+      if (user) {
         // Redirect based on role
-        if (profile.role === 'admin') {
+        if (user.role === 'admin') {
           router.push('/admin/dashboard')
         } else {
           router.push('/dashboard')
@@ -23,7 +23,7 @@ export default function Home() {
         router.push('/login')
       }
     }
-  }, [user, profile, loading, router])
+  }, [user, loading, router])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">

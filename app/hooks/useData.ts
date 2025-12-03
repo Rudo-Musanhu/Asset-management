@@ -46,7 +46,7 @@ export const useAssets = (userId?: string) => {
       // First try - just get assets without joins to debug
       const { data, error: err } = await supabase
         .from('assets')
-        .select('id, name, category_id, department_id, date_purchased, cost, created_by, created_at')
+        .select('id, name, category_id, department_id, date_purchased, cost, created_by, created_at, icon_name')
         .order('created_at', { ascending: false });
       
       

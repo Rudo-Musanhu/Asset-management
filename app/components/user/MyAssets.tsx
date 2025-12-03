@@ -4,6 +4,7 @@ import { useAssets, useCategories, useDepartments } from '@/hooks/useData';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input, Select } from '@/components/ui/Input';
+import * as LucideIcons from 'lucide-react';
 
 export const MyAssets: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
   const { user } = useAuth();
@@ -95,9 +96,9 @@ export const MyAssets: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
             <Card key={asset.id} className="p-5 hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between mb-3">
                 <div className="w-10 h-10 bg-navy-100 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-navy-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                  </svg>
+                  {React.createElement((LucideIcons as any)[asset.icon_name] || LucideIcons.Package, {
+                    className: 'w-5 h-5 text-navy-600'
+                  })}
                 </div>
                 <span className="text-lg font-bold text-green-600">{formatCurrency(asset.cost)}</span>
               </div>
