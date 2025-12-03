@@ -72,6 +72,9 @@ export const CreateAsset: React.FC<CreateAssetProps> = ({ onSuccess, onNavigateT
       setSuccess(true);
       triggerRefresh();
       onSuccess();
+      if (onNavigateToAssets) {
+        onNavigateToAssets();
+      }
     } else {
       console.error('Asset creation error:', error);
       setError(error.message);
