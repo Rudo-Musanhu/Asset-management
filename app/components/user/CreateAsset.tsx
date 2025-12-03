@@ -89,7 +89,7 @@ export const CreateAsset: React.FC<CreateAssetProps> = ({ onSuccess, onNavigateT
         <p className="text-slate-500">Add a new asset to the system</p>
       </div>
 
-      <Card className="max-w-2xl p-6">
+      <Card className="max-w-2xl mx-auto p-4 md:p-6">
         {success && (
           <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
             <p className="text-green-700 font-medium">Asset created successfully!</p>
