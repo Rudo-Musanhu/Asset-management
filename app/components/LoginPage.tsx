@@ -47,6 +47,20 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
             {error && <div className="p-3 bg-red-50 border border-red-200 rounded-lg"><p className="text-red-600 text-sm">{error}</p></div>}
             <Button type="submit" className="w-full" size="lg" isLoading={isLoading}>Sign In</Button>
           </form>
+
+          <div className="mt-4 text-center">
+            <p className="text-sm text-slate-600">
+              Don't have an account?{' '}
+              <button
+                type="button"
+                onClick={() => window.location.href = '/signup'}
+                className="text-indigo-600 hover:text-indigo-700 font-medium"
+              >
+                Sign Up
+              </button>
+            </p>
+          </div>
+
           <div className="mt-6 p-4 bg-slate-50 rounded-lg space-y-2">
             <p className="text-xs text-slate-500 font-medium">Demo Credentials:</p>
             <div className="grid grid-cols-2 gap-2 text-xs">

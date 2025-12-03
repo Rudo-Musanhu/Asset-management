@@ -1,15 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth, AuthProvider } from '../context/AuthContext';
 import { LoginPage } from '../components/LoginPage';
+import { SignUpPage } from '../components/SignUpPage';
 import { Dashboard } from '../components/Dashboard';
+import { useRouter } from 'next/navigation';
 
 const AppContent: React.FC = () => {
   const { user, isLoading } = useAuth();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
+  const [showSignUp, setShowSignUp] = useState(false);
 
   useEffect(() => {
     setIsLoggedIn(!!user);
   }, [user]);
+
+  useEffect(() => {
+    // Check if we're on a signup route
+    if (window.location.pathname === '/signup') {
+      setShowSignUp(true);
+    }
+  }, []);
 
   if (isLoading) {
     return (
@@ -22,6 +33,9 @@ const AppContent: React.FC = () => {
   }
 
   if (!isLoggedIn || !user) {
+    if (showSignUp) {
+      return <SignUpPage onSignUpSuccess={() => router.push('/login')} />;
+    }
     return <LoginPage onLoginSuccess={() => setIsLoggedIn(true)} />;
   }
 

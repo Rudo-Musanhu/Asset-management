@@ -7,6 +7,7 @@ A comprehensive web-based asset management system built with modern React techno
 ### Core Functionality
 - **Asset Management**: Create, read, update, and delete assets with detailed information
 - **User Authentication**: Secure login system with role-based access (Admin/User)
+- **User Registration**: Self-service account creation with email validation
 - **Dashboard Analytics**: Real-time statistics and insights
 - **Category & Department Management**: Organize assets by categories and departments
 - **Activity Logging**: Track all system activities and changes
@@ -185,6 +186,7 @@ node test_db.js       # Test database connectivity
 ## 🔒 Security Features
 
 - **Authentication**: Secure login with password hashing
+- **User Registration**: Self-service account creation with validation
 - **Authorization**: Role-based access control
 - **Input Validation**: Client and server-side validation
 - **SQL Injection Prevention**: Parameterized queries via Supabase
@@ -264,6 +266,33 @@ For support and questions:
 - [ ] Asset depreciation tracking
 - [ ] Mobile application
 - [ ] Real-time notifications
+
+## 📝 User Registration
+
+### Sign-Up Process
+1. **Access Sign-Up**: Click "Don't have an account? Sign Up" on the login page
+2. **Complete Form**: Provide full name, email, and password (minimum 6 characters)
+3. **Password Confirmation**: Enter password twice to prevent typos
+4. **Account Creation**: System validates email uniqueness and creates user account
+5. **Success Confirmation**: Visual confirmation with auto-redirect to login
+
+### Sign-Up Features
+- **Email Validation**: Prevents duplicate account creation
+- **Password Security**: Minimum 6-character requirement
+- **Form Validation**: Real-time error feedback
+- **Success Feedback**: Visual confirmation with checkmark animation
+- **Auto-Redirect**: Seamless transition to login after successful signup
+
+### User Roles
+- **New Users**: Automatically assigned 'user' role
+- **Admin Access**: Admin privileges must be manually assigned via database
+- **Role-Based Access**: Sign-up respects existing role-based authorization system
+
+### Technical Implementation
+- **Supabase Integration**: Uses existing Supabase client for database operations
+- **AuthContext Extension**: Added `signup()` method to authentication context
+- **Type Safety**: Extended TypeScript interfaces for new functionality
+- **Error Handling**: Comprehensive error handling for network and validation issues
 
 ---
 

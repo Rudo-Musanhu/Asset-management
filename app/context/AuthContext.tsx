@@ -59,6 +59,55 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
 };
 
+  const signup = async (fullName: string, email: string, password: string): Promise<boolean> => {
+    try {
+      // Check if user already exists
+      const { data: existingUser, error: existingError } = await supabase
+        .from('app_users')
+        .select('*')
+        .eq('email', email)
+        .single();
+
+      if (existingUser) {
+        return false; // User already exists
+      }
+
+      // Create new user
+      const { data, error } = await supabase
+        .from('app_users')
+        .insert([
+          {
+            full_name: fullName,
+            email: email,
+            password: password,
+            role: 'user',
+            is_active: true,
+            created_at: new Date().toISOString()
+          }
+        ])
+        .select()
+        .single();
+
+      if (error || !data) return false;
+
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem('asset_manager_user');
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, login, logout, signup, isLoading }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) throw new Error('useAuth must be used within AuthProvider');
