@@ -58,7 +58,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onSignUpSuccess }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-navy-900 to-slate-800 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl shadow-lg mb-4">
             <svg className="w-8 h-8 text-navy-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -81,7 +81,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onSignUpSuccess }) => {
               <p className="text-slate-600">Redirecting to login...</p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
               <Input
                 label="Full Name"
                 type="text"
@@ -125,7 +125,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onSignUpSuccess }) => {
             </form>
           )}
 
-          <div className="mt-6 text-center">
+          <div className="mt-4 sm:mt-6 text-center">
             <p className="text-sm text-slate-600">
               Already have an account?{' '}
               <button

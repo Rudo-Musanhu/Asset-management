@@ -47,18 +47,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('asset_manager_user');
-  };
-
-  return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
   const signup = async (fullName: string, email: string, password: string): Promise<boolean> => {
     try {
       // Check if user already exists
