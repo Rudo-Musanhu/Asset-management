@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import * as LucideIcons from 'lucide-react';
 
 interface CreateAssetProps {
   onSuccess: () => void;
@@ -23,6 +24,7 @@ export const CreateAsset: React.FC<CreateAssetProps> = ({ onSuccess, onNavigateT
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [iconName, setIconName] = useState<string>('Package');
   const [form, setForm] = useState({
     name: '',
     category_id: '',
@@ -30,8 +32,6 @@ export const CreateAsset: React.FC<CreateAssetProps> = ({ onSuccess, onNavigateT
     date_purchased: '',
     cost: '',
   });
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,26 +51,6 @@ export const CreateAsset: React.FC<CreateAssetProps> = ({ onSuccess, onNavigateT
       }
     }
 
-
-    // If image selected, upload first
-    let image_url: string | null = null;
-    if (imageFile) {
-      try {
-        const fileExt = imageFile.name.split('.').pop();
-        const fileName = `${Date.now()}_${Math.random().toString(36).slice(2)}.${fileExt}`;
-        const filePath = `assets/${fileName}`;
-        const { error: uploadError } = await supabase.storage.from('assets').upload(filePath, imageFile);
-        if (uploadError) throw uploadError;
-        const { data: publicData } = await supabase.storage.from('assets').getPublicUrl(filePath);
-        image_url = publicData?.publicUrl || null;
-      } catch (err: any) {
-        console.error('Image upload error:', err);
-        setError(err.message || 'Image upload failed');
-        setSaving(false);
-        return;
-      }
-    }
-
     const { error, data } = await supabase.from('assets').insert([{
       name: form.name,
       category_id: form.category_id || null,
@@ -78,7 +58,7 @@ export const CreateAsset: React.FC<CreateAssetProps> = ({ onSuccess, onNavigateT
       date_purchased: form.date_purchased,
       cost: parseFloat(form.cost),
       created_by: user?.id,
-      image_url,
+      icon_name: iconName,
     }]);
 
 
@@ -90,8 +70,7 @@ export const CreateAsset: React.FC<CreateAssetProps> = ({ onSuccess, onNavigateT
         details: form.name,
       }]);
       setForm({ name: '', category_id: '', department_id: '', date_purchased: '', cost: '' });
-      setImageFile(null);
-      setImagePreview(null);
+      setIconName('Package');
       setSuccess(true);
       triggerRefresh();
       onSuccess();
@@ -188,20 +167,33 @@ export const CreateAsset: React.FC<CreateAssetProps> = ({ onSuccess, onNavigateT
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Image</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files?.[0] || null;
-                setImageFile(file);
-                setImagePreview(file ? URL.createObjectURL(file) : null);
-              }}
-              className="w-full"
-            />
-            {imagePreview && (
-              <img src={imagePreview} alt="Preview" className="mt-2 max-h-40 rounded-md" />
-            )}
+            <label className="block text-sm font-medium text-slate-700 mb-1">Asset Icon</label>
+            <select
+              value={iconName}
+              onChange={(e) => setIconName(e.target.value)}
+              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="Package">📦 Package</option>
+              <option value="Laptop">💻 Laptop</option>
+              <option value="Monitor">🖥️ Monitor</option>
+              <option value="Smartphone">📱 Smartphone</option>
+              <option value="Camera">📷 Camera</option>
+              <option value="Printer">🖨️ Printer</option>
+              <option value="Headphones">🎧 Headphones</option>
+              <option value="Mouse">🖱️ Mouse</option>
+              <option value="Keyboard">⌨️ Keyboard</option>
+              <option value="HardDrive">💾 Hard Drive</option>
+              <option value="Zap">⚡ Power/Zap</option>
+              <option value="Wrench">🔧 Wrench</option>
+              <option value="Tool">🛠️ Tool</option>
+              <option value="AlertCircle">⚠️ Alert/Other</option>
+            </select>
+            <div className="mt-2 flex items-center gap-2">
+              <span className="text-sm text-slate-600">Preview:</span>
+              {React.createElement((LucideIcons as any)[iconName] || LucideIcons.Package, {
+                className: 'w-6 h-6 text-slate-700'
+              })}
+            </div>
           </div>
 
           <div className="pt-4">
