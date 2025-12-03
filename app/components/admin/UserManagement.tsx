@@ -128,7 +128,7 @@ export const UserManagement: React.FC = () => {
         </Button>
       </div>
 
-      <Card className="p-4 md:p-6">
+      <Card className="p-6">
         {loading ? (
            <div className="text-center py-8"><div className="w-8 h-8 border-2 border-slate-300 border-t-blue-600 rounded-full animate-spin mx-auto" /></div>
         ) : (
@@ -136,35 +136,35 @@ export const UserManagement: React.FC = () => {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-slate-200">
-                  <th className="text-left py-2 px-2 font-medium text-slate-700">Name</th>
-                  <th className="text-left py-2 px-2 font-medium text-slate-700">Email</th>
-                  <th className="text-left py-2 px-2 font-medium text-slate-700">Role</th>
-                  <th className="text-left py-2 px-2 font-medium text-slate-700">Status</th>
-                  <th className="text-left py-2 px-2 font-medium text-slate-700">Created</th>
-                  <th className="text-right py-2 px-2 font-medium text-slate-700">Actions</th>
+                  <th className="text-left py-3 px-4 font-medium text-slate-700">Name</th>
+                  <th className="text-left py-3 px-4 font-medium text-slate-700">Email</th>
+                  <th className="text-left py-3 px-4 font-medium text-slate-700">Role</th>
+                  <th className="text-left py-3 px-4 font-medium text-slate-700">Status</th>
+                  <th className="text-left py-3 px-4 font-medium text-slate-700">Created</th>
+                  <th className="text-right py-3 px-4 font-medium text-slate-700">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map((user) => (
                   <tr key={user.id} className="border-b border-slate-100">
-                    <td className="py-2 px-2">{user.full_name}</td>
-                    <td className="py-2 px-2">{user.email}</td>
-                    <td className="py-2 px-2">
+                    <td className="py-3 px-4">{user.full_name}</td>
+                    <td className="py-3 px-4">{user.email}</td>
+                    <td className="py-3 px-4">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
                       }`}>
                         {user.role}
                       </span>
                     </td>
-                    <td className="py-2 px-2">
+                    <td className="py-3 px-4">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         user.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                       }`}>
                         {user.is_active ? 'Active' : 'Inactive'}
                       </span>
                     </td>
-                    <td className="py-2 px-2">{new Date(user.created_at).toLocaleDateString()}</td>
-                    <td className="py-2 px-2 text-right">
+                    <td className="py-3 px-4">{new Date(user.created_at).toLocaleDateString()}</td>
+                    <td className="py-3 px-4 text-right">
                       <div className="inline-flex items-center justify-end gap-2 whitespace-nowrap">
                         <Button size="sm" variant="outline" onClick={() => handleEdit(user)}>
                           Edit

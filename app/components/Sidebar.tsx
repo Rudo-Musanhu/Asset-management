@@ -4,11 +4,9 @@ import { useAuth } from '../context/AuthContext';
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  isOpen: boolean;
-  setIsOpen: (open: boolean) => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, setIsOpen }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
   const { user, logout } = useAuth();
   const isAdmin = user?.role === 'admin';
 
@@ -30,57 +28,35 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpe
   const tabs = isAdmin ? adminTabs : userTabs;
 
   return (
-    <>
-      {/* Mobile overlay */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
-          onClick={() => setIsOpen(false)}
-        />
-      )}
-
-      <div className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-slate-900 min-h-screen flex flex-col transform transition-transform duration-300 ease-in-out ${
-        isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-      }`}>
-      <div className="p-6 border-b border-slate-700">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-navy-600 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
-            </div>
-            <span className="text-white font-bold text-lg">Asset Manager</span>
-          </div>
-          <button
-            onClick={() => setIsOpen(false)}
-            className="md:hidden p-1 text-slate-400 hover:text-white"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+    <div className="w-64 bg-slate-900 min-h-screen flex flex-col">
+    <div className="p-6 border-b border-slate-700">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 bg-navy-600 rounded-lg flex items-center justify-center">
+          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
         </div>
-      </div>
-      <nav className="flex-1 p-4 space-y-1">
-        {tabs.map((tab) => (
-          <button key={tab.id} onClick={() => { setActiveTab(tab.id); setIsOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${activeTab === tab.id ? 'bg-navy-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={tab.icon} /></svg>
-            {tab.label}
-          </button>
-        ))}
-      </nav>
-      <div className="p-4 border-t border-slate-700">
-        <div className="flex items-center gap-3 mb-4 px-2">
-          <div className="w-8 h-8 bg-navy-600 rounded-full flex items-center justify-center text-white text-sm font-medium">{user?.full_name?.charAt(0)}</div>
-          <div className="flex-1 min-w-0"><p className="text-sm text-white truncate">{user?.full_name}</p><p className="text-xs text-slate-400 capitalize">{user?.role}</p></div>
-        </div>
-        <button onClick={logout} className="w-full flex items-center gap-2 px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-          Logout
-        </button>
+        <span className="text-white font-bold text-lg">Asset Manager</span>
       </div>
     </div>
-    </>
+    <nav className="flex-1 p-4 space-y-1">
+      {tabs.map((tab) => (
+        <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${activeTab === tab.id ? 'bg-navy-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={tab.icon} /></svg>
+          {tab.label}
+        </button>
+      ))}
+    </nav>
+    <div className="p-4 border-t border-slate-700">
+      <div className="flex items-center gap-3 mb-4 px-2">
+        <div className="w-8 h-8 bg-navy-600 rounded-full flex items-center justify-center text-white text-sm font-medium">{user?.full_name?.charAt(0)}</div>
+        <div className="flex-1 min-w-0"><p className="text-sm text-white truncate">{user?.full_name}</p><p className="text-xs text-slate-400 capitalize">{user?.role}</p></div>
+      </div>
+      <button onClick={logout} className="w-full flex items-center gap-2 px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all">
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+        Logout
+      </button>
+    </div>
+  </div>
   );
 };
