@@ -19,19 +19,9 @@ export const MyAssets: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
   const departmentMap = new Map(departments.map(d => [d.id, d]));
 
   useEffect(() => {
-    console.log('MyAssets mounted/updated');
-    console.log('MyAssets - user object:', user);
-    console.log('MyAssets - user?.id type:', typeof user?.id, 'value:', user?.id);
-    console.log('MyAssets - assets received (filtered):', assets);
-    console.log('MyAssets - assets count (filtered):', assets.length);
-    console.log('MyAssets - ALL assets count (unfiltered):', allAssets.length);
-    console.log('MyAssets - error:', error);
     if (assets.length > 0) {
-      console.log('MyAssets - sample asset:', assets[0]);
-      console.log('MyAssets - sample asset created_by:', (assets[0] as any).created_by);
     }
     if (allAssets.length > 0) {
-      console.log('MyAssets - all assets sample:', allAssets[0]);
       console.log('MyAssets - all assets created_by values:', allAssets.map(a => ({ name: a.name, created_by: (a as any).created_by })));
     }
   }, [user?.id, assets, allAssets, error]);
@@ -82,8 +72,6 @@ export const MyAssets: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
         <div className="text-center py-12 text-slate-500">Loading...</div>
       ) : (
         <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg text-xs font-mono">
-          <p className="text-blue-900">DEBUG: User ID = {user?.id}</p>
-          <p className="text-blue-900">DEBUG: Filtered assets = {assets.length}, All assets = {allAssets.length}</p>
           {assets.length === 0 && allAssets.length > 0 && (
             <p className="text-red-900">⚠️ Assets exist in DB but none match user ID. Check created_by field.</p>
           )}

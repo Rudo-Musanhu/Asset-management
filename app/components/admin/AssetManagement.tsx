@@ -11,16 +11,36 @@ import { Label } from '../ui/label';
 import { toast } from 'sonner';
 import { useAppContext } from '../../contexts/AppContext';
 import { useAuth } from '../../context/AuthContext';
-import { useCategories, useDepartments } from '../../hooks/useData';
+import { useCategories, useDepartments, useUsers } from '../../hooks/useData';
 
 export const AssetManagement: React.FC = () => {
   const { triggerRefresh } = useAppContext();
   const { user } = useAuth();
   const { categories } = useCategories();
   const { departments } = useDepartments();
+  const { users } = useUsers();
   const [assets, setAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalAssets, setTotalAssets] = useState<number>(0);
+
+  // Helper functions to get names by ID
+  const getCategoryName = (categoryId: string | null): string => {
+    if (!categoryId) return '-';
+    const category = categories.find(c => c.id === categoryId);
+    return category?.name || '-';
+  };
+
+  const getDepartmentName = (departmentId: string | null): string => {
+    if (!departmentId) return '-';
+    const department = departments.find(d => d.id === departmentId);
+    return department?.name || '-';
+  };
+
+  const getUserName = (userId: string | null): string => {
+    if (!userId) return 'System';
+    const creator = users.find(u => u.id === userId);
+    return creator?.full_name || creator?.email || '-';
+  };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<Asset | null>(null);
@@ -34,18 +54,15 @@ export const AssetManagement: React.FC = () => {
 
   // Fetch all assets + total count for Admin
   const fetchAssets = async () => {
-    console.log('[AssetManagement] Fetching assets...');
     setLoading(true);
     const { data, error } = await supabase
       .from('assets')
       .select('id, name, category_id, department_id, date_purchased, cost, created_by, created_at');
 
-    console.log('[AssetManagement] Fetch response - error:', error, 'data length:', data?.length || 0);
     if (error) {
       console.error('[AssetManagement] Error fetching:', error);
       toast.error(error.message);
     } else {
-      console.log('[AssetManagement] Assets loaded:', data);
       setAssets(data || []);
       setTotalAssets(data?.length || 0);
     }
@@ -157,10 +174,8 @@ export const AssetManagement: React.FC = () => {
           <p className="text-slate-700 mt-1">Total Assets: {totalAssets}</p>
         </div>
         <Button onClick={() => { 
-          console.log('[AssetManagement] Add New Asset button clicked');
           resetForm(); 
           setIsModalOpen(true);
-          console.log('[AssetManagement] Modal should be open now');
         }}>
           Add New Asset
         </Button>
@@ -175,8 +190,8 @@ export const AssetManagement: React.FC = () => {
               <thead>
                 <tr className="border-b border-slate-200">
                   <th className="text-left py-3 px-4">Name</th>
-                  <th className="text-left py-3 px-4">Category ID</th>
-                  <th className="text-left py-3 px-4">Department ID</th>
+                  <th className="text-left py-3 px-4">Category</th>
+                  <th className="text-left py-3 px-4">Department</th>
                   <th className="text-left py-3 px-4">Purchase Date</th>
                   <th className="text-left py-3 px-4">Cost</th>
                   <th className="text-left py-3 px-4">Created By</th>
@@ -187,18 +202,20 @@ export const AssetManagement: React.FC = () => {
                 {assets.map((asset) => (
                   <tr key={asset.id} className="border-b border-slate-100">
                     <td className="py-3 px-4 font-medium">{asset.name}</td>
-                    <td className="py-3 px-4">{asset.category_id || '-'}</td>
-                    <td className="py-3 px-4">{asset.department_id || '-'}</td>
+                    <td className="py-3 px-4">{getCategoryName(asset.category_id)}</td>
+                    <td className="py-3 px-4">{getDepartmentName(asset.department_id)}</td>
                     <td className="py-3 px-4">{new Date(asset.date_purchased).toLocaleDateString()}</td>
                     <td className="py-3 px-4">${asset.cost.toLocaleString()}</td>
-                    <td className="py-3 px-4">{asset.created_by || 'System'}</td>
-                    <td className="py-3 px-4 text-right space-x-2">
-                      <Button size="sm" variant="outline" onClick={() => setEditingAsset(asset)}>
-                        Edit
-                      </Button>
-                      <Button size="sm" variant="destructive" onClick={() => handleDelete(asset.id)}>
-                        Delete
-                      </Button>
+                    <td className="py-3 px-4">{getUserName(asset.created_by)}</td>
+                    <td className="py-3 px-4 text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button size="sm" variant="outline" onClick={() => setEditingAsset(asset)}>
+                          Edit
+                        </Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleDelete(asset.id)}>
+                          Delete
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -216,7 +233,6 @@ export const AssetManagement: React.FC = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => { 
-          console.log('[AssetManagement] Modal closed');
           setIsModalOpen(false); 
           resetForm(); 
         }}

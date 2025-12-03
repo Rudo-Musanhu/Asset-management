@@ -164,20 +164,22 @@ export const UserManagement: React.FC = () => {
                       </span>
                     </td>
                     <td className="py-3 px-4">{new Date(user.created_at).toLocaleDateString()}</td>
-                    <td className="py-3 px-4 text-right space-x-2">
-                      <Button size="sm" variant="outline" onClick={() => handleEdit(user)}>
-                        Edit
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={user.is_active ? "destructive" : "default"}
-                        onClick={() => toggleUserStatus(user)}
-                      >
-                        {user.is_active ? 'Deactivate' : 'Activate'}
-                      </Button>
-                      <Button size="sm" variant="destructive" onClick={() => handleDelete(user.id)}>
-                        Delete
-                      </Button>
+                    <td className="py-3 px-4 text-right">
+                      <div className="inline-flex items-center justify-end gap-2 whitespace-nowrap">
+                        <Button size="sm" variant="outline" onClick={() => handleEdit(user)}>
+                          Edit
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant={user.is_active ? "destructive" : "default"}
+                          onClick={() => toggleUserStatus(user)}
+                        >
+                          {user.is_active ? 'Deactivate' : 'Activate'}
+                        </Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleDelete(user.id)}>
+                          Delete
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}

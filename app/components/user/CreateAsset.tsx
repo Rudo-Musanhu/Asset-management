@@ -49,9 +49,6 @@ export const CreateAsset: React.FC<CreateAssetProps> = ({ onSuccess, onNavigateT
       }
     }
 
-    console.log('CreateAsset - user object:', user);
-    console.log('CreateAsset - user?.id type:', typeof user?.id, 'value:', user?.id);
-    console.log('CreateAsset - Asset data:', { name: form.name, category_id: form.category_id, department_id: form.department_id, date_purchased: form.date_purchased, cost: form.cost, created_by: user?.id });
 
     const { error, data } = await supabase.from('assets').insert([{
       name: form.name,
@@ -62,10 +59,8 @@ export const CreateAsset: React.FC<CreateAssetProps> = ({ onSuccess, onNavigateT
       created_by: user?.id,
     }]);
 
-    console.log('CreateAsset - Insert response:', { error, data });
 
     if (!error) {
-      console.log('Asset created successfully');
       await supabase.from('activity_logs').insert([{
         user_id: user?.id,
         action: 'Created asset',

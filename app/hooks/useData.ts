@@ -40,36 +40,28 @@ export const useAssets = (userId?: string) => {
   const { refreshTrigger } = useAppContext();
 
   const fetchAssets = useCallback(async () => {
-    console.log('[useAssets] fetchAssets called, userId:', userId);
     setLoading(true);
     setError(null);
     try {
-      console.log('[useAssets] Fetching from supabase...');
       // First try - just get assets without joins to debug
       const { data, error: err } = await supabase
         .from('assets')
         .select('id, name, category_id, department_id, date_purchased, cost, created_by, created_at')
         .order('created_at', { ascending: false });
       
-      console.log('[useAssets] Fetch response - error:', err, 'data length:', data?.length || 0);
       
       if (err) {
         console.error('[useAssets] Query error:', err);
         setError(err.message);
         setAssets([]);
       } else {
-        console.log('[useAssets] Successfully fetched assets:', data?.length || 0, 'assets');
         if (data && data.length > 0) {
-          console.log('[useAssets] Sample asset:', data[0]);
-          console.log('[useAssets] All assets created_by values:', data.map(a => ({ name: a.name, created_by: (a as any).created_by })));
         }
         
         // Filter by userId if provided, otherwise show all
         let filtered = (data as any[]) || [];
         if (userId) {
-          console.log('[useAssets] Filtering for userId:', userId);
           filtered = filtered.filter(a => a.created_by === userId);
-          console.log('[useAssets] After filtering:', filtered.length, 'assets match userId');
         }
         setAssets(filtered as Asset[]);
       }
@@ -83,13 +75,11 @@ export const useAssets = (userId?: string) => {
   }, [userId]);
 
   useEffect(() => { 
-    console.log('[useAssets] Initial effect triggered');
     fetchAssets(); 
   }, [fetchAssets]);
   
   // Refetch when refreshTrigger changes
   useEffect(() => {
-    console.log('[useAssets] Refresh trigger effect fired:', refreshTrigger);
     fetchAssets();
   }, [refreshTrigger, fetchAssets]);
 
