@@ -32,7 +32,7 @@ export const AdminDashboard: React.FC<{ refreshKey?: number }> = ({ refreshKey }
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="p-6">
           <div className="flex items-center">
             <div className="p-2 bg-blue-100 rounded-lg">
@@ -91,7 +91,7 @@ export const AdminDashboard: React.FC<{ refreshKey?: number }> = ({ refreshKey }
       </div>
 
       {/* Asset Value Card */}
-      <Card className="p-6">
+      <Card className="p-4 md:p-6">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-slate-600">Total Asset Value</p>
@@ -106,7 +106,7 @@ export const AdminDashboard: React.FC<{ refreshKey?: number }> = ({ refreshKey }
       </Card>
 
       {/* Recent Activity */}
-      <Card className="p-6">
+      <Card className="p-4 md:p-6">
         <h3 className="text-lg font-semibold text-slate-900 mb-4">Recent Activity</h3>
         <div className="space-y-3">
           {logs.length > 0 ? (
