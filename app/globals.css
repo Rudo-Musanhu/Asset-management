@@ -25,3 +25,77 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Responsive styles for mobile devices */
+@media (max-width: 768px) {
+  /* Make sidebar narrower on mobile */
+  .sidebar {
+    width: 16rem !important;
+  }
+
+  /* Adjust sidebar padding for mobile */
+  .sidebar-content {
+    padding: 1rem !important;
+  }
+
+  /* Make main content padding consistent */
+  .main-content {
+    padding: 1rem !important;
+  }
+
+  /* Adjust header for mobile */
+  .header {
+    padding: 1rem !important;
+  }
+
+  /* Make cards more compact on mobile */
+  .card {
+    padding: 1rem !important;
+  }
+
+  /* Adjust grid layouts for mobile */
+  .grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important;
+    gap: 0.5rem !important;
+  }
+
+  /* Make tables scrollable horizontally */
+  .table-container {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Adjust table cell padding for mobile */
+  table th,
+  table td {
+    padding: 0.5rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  /* Make buttons more touch-friendly */
+  button, .btn {
+    min-height: 2.5rem !important;
+    min-width: 2.5rem !important;
+    padding: 0.5rem 1rem !important;
+  }
+
+  /* Adjust form inputs for mobile */
+  input, select, textarea {
+    padding: 0.5rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  /* Make text more readable on small screens */
+  h1, h2, h3 {
+    font-size: 1.25rem !important;
+  }
+
+  p, span, div {
+    font-size: 0.875rem !important;
+  }
+
+  /* Ensure content doesn't overflow */
+  .overflow-hidden {
+    overflow: visible !important;
+  }
+}
+

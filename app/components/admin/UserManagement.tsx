@@ -128,7 +128,7 @@ export const UserManagement: React.FC = () => {
         </Button>
       </div>
 
-      <Card className="p-6">
+      <Card className="p-4 overflow-x-auto">
         {loading ? (
            <div className="text-center py-8"><div className="w-8 h-8 border-2 border-slate-300 border-t-blue-600 rounded-full animate-spin mx-auto" /></div>
         ) : (

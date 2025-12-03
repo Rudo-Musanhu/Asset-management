@@ -52,7 +52,7 @@ export const Dashboard: React.FC = () => {
       />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
-        <main className="flex-1 p-8 overflow-auto">
+        <main className="flex-1 p-4 md:p-8 overflow-auto">
           {renderContent()}
         </main>
       </div>
