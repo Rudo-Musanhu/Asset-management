@@ -29,6 +29,7 @@ export interface Asset {
   date_purchased: string;
   cost: number;
   created_by: string;
+  image_url?: string | null;
   created_at: string;
   category?: AssetCategory;
   department?: Department;

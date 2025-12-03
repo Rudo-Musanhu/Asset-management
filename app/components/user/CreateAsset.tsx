@@ -30,6 +30,8 @@ export const CreateAsset: React.FC<CreateAssetProps> = ({ onSuccess, onNavigateT
     date_purchased: '',
     cost: '',
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,6 +52,25 @@ export const CreateAsset: React.FC<CreateAssetProps> = ({ onSuccess, onNavigateT
     }
 
 
+    // If image selected, upload first
+    let image_url: string | null = null;
+    if (imageFile) {
+      try {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${Date.now()}_${Math.random().toString(36).slice(2)}.${fileExt}`;
+        const filePath = `assets/${fileName}`;
+        const { error: uploadError } = await supabase.storage.from('assets').upload(filePath, imageFile);
+        if (uploadError) throw uploadError;
+        const { data: publicData } = await supabase.storage.from('assets').getPublicUrl(filePath);
+        image_url = publicData?.publicUrl || null;
+      } catch (err: any) {
+        console.error('Image upload error:', err);
+        setError(err.message || 'Image upload failed');
+        setSaving(false);
+        return;
+      }
+    }
+
     const { error, data } = await supabase.from('assets').insert([{
       name: form.name,
       category_id: form.category_id || null,
@@ -57,6 +78,7 @@ export const CreateAsset: React.FC<CreateAssetProps> = ({ onSuccess, onNavigateT
       date_purchased: form.date_purchased,
       cost: parseFloat(form.cost),
       created_by: user?.id,
+      image_url,
     }]);
 
 
@@ -68,6 +90,8 @@ export const CreateAsset: React.FC<CreateAssetProps> = ({ onSuccess, onNavigateT
         details: form.name,
       }]);
       setForm({ name: '', category_id: '', department_id: '', date_purchased: '', cost: '' });
+      setImageFile(null);
+      setImagePreview(null);
       setSuccess(true);
       triggerRefresh();
       onSuccess();
@@ -161,6 +185,23 @@ export const CreateAsset: React.FC<CreateAssetProps> = ({ onSuccess, onNavigateT
               placeholder="0.00"
               required
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Image</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                setImageFile(file);
+                setImagePreview(file ? URL.createObjectURL(file) : null);
+              }}
+              className="w-full"
+            />
+            {imagePreview && (
+              <img src={imagePreview} alt="Preview" className="mt-2 max-h-40 rounded-md" />
+            )}
           </div>
 
           <div className="pt-4">

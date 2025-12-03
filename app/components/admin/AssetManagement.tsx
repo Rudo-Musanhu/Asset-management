@@ -44,10 +44,13 @@ export const AssetManagement: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<Asset | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     category_id: '',
     department_id: '',
+    created_by: '',
     date_purchased: '',
     cost: '',
   });
@@ -79,9 +82,11 @@ export const AssetManagement: React.FC = () => {
         name: editingAsset.name,
         category_id: editingAsset.category_id || '',
         department_id: editingAsset.department_id || '',
+        created_by: editingAsset.created_by || '',
         date_purchased: editingAsset.date_purchased,
         cost: editingAsset.cost.toString(),
       });
+      setImagePreview(editingAsset.image_url || null);
       setIsModalOpen(true);
     }
   }, [editingAsset]);
@@ -95,6 +100,8 @@ export const AssetManagement: React.FC = () => {
       cost: '',
     });
     setEditingAsset(null);
+    setImageFile(null);
+    setImagePreview(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -110,13 +117,24 @@ export const AssetManagement: React.FC = () => {
           return;
         }
       }
-      const assetData = {
+      const assetData: any = {
         name: formData.name,
         category_id: formData.category_id || null,
         department_id: formData.department_id || null,
         date_purchased: formData.date_purchased,
         cost: parseFloat(formData.cost),
       };
+
+      // If an image file was selected, upload to Supabase Storage and set image_url
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${Date.now()}_${Math.random().toString(36).slice(2)}.${fileExt}`;
+        const filePath = `assets/${fileName}`;
+          const { error: uploadError } = await supabase.storage.from('assets').upload(filePath, imageFile);
+          if (uploadError) throw uploadError;
+          const { data: publicData } = await supabase.storage.from('assets').getPublicUrl(filePath);
+          assetData.image_url = publicData?.publicUrl || '';
+      }
 
       if (editingAsset) {
         const { error } = await supabase
@@ -131,7 +149,7 @@ export const AssetManagement: React.FC = () => {
           .from('assets')
           .insert({
             ...assetData,
-            created_by: user?.id || null,
+            created_by: formData.created_by || user?.id || null,
           });
 
         if (error) throw error;
@@ -183,7 +201,7 @@ export const AssetManagement: React.FC = () => {
 
       <Card className="p-6">
         {loading ? (
-          <div className="text-center py-8">Loading assets...</div>
+          <div className="text-center py-8"><div className="w-8 h-8 border-2 border-slate-300 border-t-blue-600 rounded-full animate-spin mx-auto" /></div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -306,6 +324,39 @@ export const AssetManagement: React.FC = () => {
               className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
+          </div>
+
+          {user?.role === 'admin' && (
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Created By</label>
+              <select
+                value={formData.created_by}
+                onChange={(e) => setFormData({ ...formData, created_by: e.target.value })}
+                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select creator</option>
+                {users.map((u) => (
+                  <option key={u.id} value={u.id}>{u.full_name || u.email}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Image</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                setImageFile(file);
+                setImagePreview(file ? URL.createObjectURL(file) : null);
+              }}
+              className="w-full"
+            />
+            {imagePreview && (
+              <img src={imagePreview} alt="Preview" className="mt-2 max-h-40 rounded-md" />
+            )}
           </div>
 
           <div className="flex justify-end space-x-3 pt-4">
