@@ -101,7 +101,7 @@ export const DepartmentManagement: React.FC = () => {
 
       <Card className="p-6">
         {loading ? (
-          <div className="text-center py-8">Loading departments...</div>
+           <div className="text-center py-8"><div className="w-8 h-8 border-2 border-slate-300 border-t-blue-600 rounded-full animate-spin mx-auto" /></div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">

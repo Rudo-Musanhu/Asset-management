@@ -69,7 +69,7 @@ export const MyAssets: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
       </Card>
 
       {loading ? (
-        <div className="text-center py-12 text-slate-500">Loading...</div>
+        <div className="text-center py-12"><div className="w-8 h-8 border-2 border-slate-300 border-t-blue-600 rounded-full animate-spin mx-auto" /></div>
       ) : (
         <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg text-xs font-mono">
           {assets.length === 0 && allAssets.length > 0 && (
