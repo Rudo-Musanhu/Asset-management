@@ -1,4 +1,3 @@
-// app/page.tsx
 'use client'
 
 import { useEffect } from 'react'
@@ -7,23 +6,23 @@ import { useAuth } from './context/AuthContext'
 
 export default function Home() {
   const router = useRouter()
-  const { user, isLoading: loading } = useAuth()
+  const { user, isLoading } = useAuth()
 
   useEffect(() => {
-    if (!loading) {
-      if (user) {
-        // Redirect based on role
-        if (user.role === 'admin') {
-          router.push('/admin/dashboard')
-        } else {
-          router.push('/dashboard')
-        }
+    if (isLoading) return
+
+    if (user) {
+      // If user logged in, redirect by role
+      if (user.role === 'admin') {
+        router.push('/admin/dashboard')
       } else {
-        // Not logged in, go to login
-        router.push('/login')
+        router.push('/dashboard')
       }
+    } else {
+      // Not logged in → go to login page
+      router.push('/login')
     }
-  }, [user, loading, router])
+  }, [user, isLoading, router])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -33,3 +32,5 @@ export default function Home() {
     </div>
   )
 }
+
+
