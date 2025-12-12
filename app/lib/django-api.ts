@@ -1,6 +1,6 @@
 import { WarrantyLoginRequest, WarrantyLoginResponse, WarrantyRegisterRequest, WarrantyRegisterResponse, DjangoApiError } from '../types';
 
-const DJANGO_API_BASE = 'http://127.0.0.1:8000/api/warranty';
+const DJANGO_API_BASE = 'https://server6.eport.ws/api/warranty';
 
 class DjangoApiClient {
   private accessToken: string | null = null;
