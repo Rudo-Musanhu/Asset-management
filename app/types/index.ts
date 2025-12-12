@@ -54,3 +54,38 @@ export interface AuthContextType {
   signup: (fullName: string, email: string, password: string) => Promise<boolean>;
   isLoading: boolean;
 }
+
+// Django Warranty API types
+export interface WarrantyLoginRequest {
+  username: string;
+  password: string;
+}
+
+export interface WarrantyLoginResponse {
+  access: string;
+  refresh: string;
+  token_type?: string;
+  user_id?: string;
+  message?: string;
+}
+
+export interface WarrantyRegisterRequest {
+  asset_id: string;
+  asset_name: string;
+  serial_number: string;
+  purchase_date: string;
+}
+
+export interface WarrantyRegisterResponse {
+  success: boolean;
+  message: string;
+  warranty_id?: string;
+  data?: Record<string, any>;
+}
+
+export interface DjangoApiError {
+  detail?: string;
+  message?: string;
+  error?: string;
+  non_field_errors?: string[];
+}

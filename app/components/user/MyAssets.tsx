@@ -4,6 +4,8 @@ import { useAssets, useCategories, useDepartments } from '@/hooks/useData';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input, Select } from '@/components/ui/Input';
+import { WarrantyModal } from '@/components/WarrantyModal';
+import { Asset } from '@/types';
 import * as LucideIcons from 'lucide-react';
 
 export const MyAssets: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
@@ -14,6 +16,8 @@ export const MyAssets: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
   const { departments } = useDepartments();
   const [search, setSearch] = useState('');
   const [filterCat, setFilterCat] = useState('');
+  const [warrantyModalOpen, setWarrantyModalOpen] = useState(false);
+  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
 
   // Create lookup maps for categories and departments
   const categoryMap = new Map(categories.map(c => [c.id, c]));
@@ -61,6 +65,8 @@ export const MyAssets: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
         </Button>
       </div>
 
+      <WarrantyModal isOpen={warrantyModalOpen} onClose={() => setWarrantyModalOpen(false)} asset={selectedAsset} />
+
       <Card className="mb-6 p-4">
         <div className="flex flex-wrap gap-4">
           <div className="flex-1 min-w-[200px]"><Input placeholder="Search assets..." value={search} onChange={(e) => setSearch(e.target.value)} /></div>
@@ -96,7 +102,7 @@ export const MyAssets: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
             <Card key={asset.id} className="p-5 hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between mb-3">
                 <div className="w-10 h-10 bg-navy-100 rounded-lg flex items-center justify-center">
-                  {React.createElement((LucideIcons as any)[asset.icon_name] || LucideIcons.Package, {
+                  {React.createElement((LucideIcons as any)[(asset.icon_name || 'Package')] || LucideIcons.Package, {
                     className: 'w-5 h-5 text-navy-600'
                   })}
                 </div>
@@ -107,7 +113,16 @@ export const MyAssets: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => {
                 {asset.category_id && categoryMap.get(asset.category_id) && <span className="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-700">{categoryMap.get(asset.category_id)?.name}</span>}
                 {asset.department_id && departmentMap.get(asset.department_id) && <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700">{departmentMap.get(asset.department_id)?.name}</span>}
               </div>
-              <p className="text-sm text-slate-500">Purchased: {new Date(asset.date_purchased).toLocaleDateString()}</p>
+              <p className="text-sm text-slate-500 mb-4">Purchased: {new Date(asset.date_purchased).toLocaleDateString()}</p>
+              <button 
+                onClick={() => {
+                  setSelectedAsset(asset);
+                  setWarrantyModalOpen(true);
+                }}
+                className="w-full px-3 py-2 bg-blue-600 text-white rounded-md font-medium text-sm hover:bg-blue-700 transition-colors"
+              >
+                Register Warranty
+              </button>
             </Card>
           ))}
         </div>
