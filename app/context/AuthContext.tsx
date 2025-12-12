@@ -1,17 +1,19 @@
-  const signup = async (email: string, password: string, full_name: string): Promise<boolean> => {
-    try {
-      const { data, error } = await supabase
-        .from('app_users')
-        .insert([
-          { email, password, full_name, role: 'user', is_active: true }
-        ]);
-      if (error) return false;
-      return true;
-    } catch {
-      return false;
-    }
-  };
+
 'use client'
+
+const signup = async (email: string, password: string, full_name: string): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase
+      .from('app_users')
+      .insert([
+        { email, password, full_name, role: 'user', is_active: true }
+      ]);
+    if (error) return false;
+    return true;
+  } catch {
+    return false;
+  }
+};
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { supabase } from '../lib/supabase';
