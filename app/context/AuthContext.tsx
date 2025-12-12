@@ -1,3 +1,16 @@
+  const signup = async (email: string, password: string, full_name: string): Promise<boolean> => {
+    try {
+      const { data, error } = await supabase
+        .from('app_users')
+        .insert([
+          { email, password, full_name, role: 'user', is_active: true }
+        ]);
+      if (error) return false;
+      return true;
+    } catch {
+      return false;
+    }
+  };
 'use client'
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
@@ -55,7 +68,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, logout, signup, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
